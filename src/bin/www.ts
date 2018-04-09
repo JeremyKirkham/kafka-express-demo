@@ -11,6 +11,15 @@ import { getRepository } from "typeorm";
 import { User } from "../entity/User";
 import { EntityManager } from "typeorm";
 
+// Kafka.
+import { DemoConsumer } from "../kafka/consumers/DemoConsumer";
+import { DemoProducer } from "../kafka/producers/DemoProducer";
+const demoConsumer = Container.get(DemoConsumer);
+const demoProducer = Container.get(DemoProducer);
+demoConsumer.initialize();
+demoProducer.initialize();
+
+//  Init server.
 const server = Container.get(Server);
 const db = createConnection();
 server.initialize(db);
@@ -27,10 +36,15 @@ server.app.set("port", port);
 
 server.ready.then(() => {
 
+  function getUsers() {
+    demoProducer.send('getUsers');
+    return server.connection.getRepository(User).find()
+  }
+
   // The resolvers
   const resolvers = {
     Query: {
-      users: () => server.connection.getRepository(User).find(),
+      users: () => getUsers(),
     },
   };
 

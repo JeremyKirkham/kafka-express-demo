@@ -1,5 +1,10 @@
 version: "3"
 services:
+  kafka:
+    image: spotify/kafka:latest
+    ports:
+      - "2181:2181"
+      - "9092:9092"
   db:
     image: postgres
     ports:
@@ -13,3 +18,4 @@ services:
       - "3000:3000"
     depends_on:
       - db
+      - kafka
