@@ -1,9 +1,15 @@
 version: "3"
 services:
+  db:
+    image: postgres
+    ports:
+      - "5433:5432"
   web:
     build: .
-    command: bash -c "npm install && npm run tsc && npm start"
+    command: bash -c "npm install && npm start"
     volumes:
       - .:/usr/src/app
     ports:
       - "3000:3000"
+    depends_on:
+      - db
