@@ -7,9 +7,4 @@ export class User {
 
     @Column()
     firstName: string;
-
-    public constructor(id: number, firstName: string) {
-      this.id = id;
-      this.firstName = firstName;
-    }
 }

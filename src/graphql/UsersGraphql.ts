@@ -7,27 +7,40 @@ import { makeExecutableSchema } from 'graphql-tools';
 import "reflect-metadata";
 import { getRepository } from "typeorm";
 import { User } from "../entity/User";
-import { DemoProducer } from "../kafka/producers/DemoProducer";
+import { UsersKafka } from "../kafka/UsersKafka";
+
+interface ctx {
+  kafka: UsersKafka,
+};
 
 // The GraphQL schema in string form
 const typeDefs = `
   type Query { users: [User] }
+  type Mutation { createUser(firstName: String): mutationResult }
   type User { id: Int, firstName: String }
+  type mutationResult { success: Boolean }
 `;
 
 @Service()
 export class UsersGraphql {
   server: Server;
-  producer: DemoProducer
+  kafka: UsersKafka;
 
-  public initialize(server: Server, producer: DemoProducer) {
+  public initialize(server: Server, kafka: UsersKafka) {
     this.server = server;
-    this.producer = producer;
+    this.kafka = kafka;
 
     // The resolvers
     const resolvers = {
       Query: {
         users: () => this.getUsers(),
+      },
+      Mutation: {
+        createUser(obj: any, { firstName }: { firstName: string }, context: ctx) {
+          return {
+            success: context.kafka.send(firstName),
+          };
+        },
       },
     };
 
@@ -37,12 +50,16 @@ export class UsersGraphql {
       resolvers,
     });
 
-    server.app.use('/graphql', bodyParser.json(), graphqlExpress({ schema: schema }));
+    server.app.use('/graphql', bodyParser.json(), graphqlExpress({
+      schema: schema,
+      context: {
+        kafka: this.kafka,
+      },
+    }));
     server.app.get('/graphiql', graphiqlExpress({ endpointURL: '/graphql' }));
   }
 
   private getUsers() {
-    this.producer.send('getUsers called');
-    return this.server.connection.getRepository(User).find()
+    return this.server.connection.getRepository(User).find();
   }
 }
