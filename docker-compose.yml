@@ -2,10 +2,8 @@ version: "3"
 services:
   web:
     build: .
-    command: bash -c "DEBUG=myapp:* npm start"
+    command: bash -c "npm install && npm start"
     volumes:
       - .:/usr/src/app
-      - /usr/src/app
-      - /usr/src/app/node_modules
     ports:
       - "3000:3000"
