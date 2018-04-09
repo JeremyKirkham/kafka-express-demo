@@ -17,10 +17,7 @@ export class DemoConsumer {
       consumer.consume();
     })
     .on('data', function(data) {
-      console.log('<<<<<<<<<<<<<<<<<<');
-      console.log('Kafka message:');
-      console.log(data.value.toString());
-      console.log(data.key.toString());
+      console.log('Kafka message consumed: ' + data.value.toString());
     });
   }
 }
