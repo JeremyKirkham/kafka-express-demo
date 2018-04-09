@@ -1,0 +1,16 @@
+{
+  "compilerOptions": {
+    "noImplicitAny": true,
+    "module": "commonjs",
+    "target": "es5",
+    "strict": true,
+    "outDir": "dist",
+    "lib": [
+     "esnext.asynciterable",
+     "ES2015"
+   ]
+  },
+  "include": [
+    "src/**/*"
+  ]
+}
